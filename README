@@ -9,6 +9,6 @@ phpbugs - Find bugs in PHP5 Programs
 
  $ make
 
-== How to use? ==
+== Usage ==
 
  $ ./phpbugs [PHP sources]
