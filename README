@@ -1,4 +1,14 @@
 phpbugs - Find bugs in PHP5 Programs
 
+== Requirement ==
 
+ * PHP 5.1.4 or higher (recommended 5.2.3 or higher)
+ * kmyacc(http://www005.upp.so-net.ne.jp/kmori/kmyacc/)
 
+== Installation ==
+
+ $ make
+
+== How to use? ==
+
+ $ ./phpbugs [PHP sources]
