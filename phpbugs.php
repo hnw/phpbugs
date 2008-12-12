@@ -1,5 +1,5 @@
 #!/usr/bin/env php
-<?php
+<?php /*-*- mode:PHP;tab-width:4;c-basic-offset:4;indent-tabs-mode:nil; -*-*/
 /* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
 
 phpbugs::setIncludePath();
@@ -14,9 +14,10 @@ class phpbugs
         $vendor_dir = self::createPath(dirname(__FILE__), 'vendor');
 
         $include_paths = array(
-            '.',
-            self::createPath($vendor_dir, 'ARGF'),
-            self::createPath($vendor_dir, 'pear', 'php'));
+                               '.',
+                               self::createPath($vendor_dir, 'ARGF'),
+                               //self::createPath($vendor_dir, 'pear', 'php'),
+                               );
 
         $include_paths = array_unique(array_merge(
             $include_paths, split(':', get_include_path())));
@@ -38,21 +39,10 @@ class phpbugs
             return $this->executeRecursively(array_pop($args), $args, $options);
         }
 
-        if ($options['in_place'] && $args) {
-            foreach ($args as $file) {
-                if (!is_file($file)) {
-                    fprintf(STDERR, "No such file: $file\n");
-                    continue;
-                }
-
-                $contents = file_get_contents($file);
-                file_put_contents($file, print_r(
-                    $this->migrate($contents, $options['format']),
-                    true));
-            }
-        } else {
-            $argf = new ARGF($args);
-            print_r($this->migrate($argf->toString(), $options['format']));
+        $argf = new ARGF($args);
+        $this->migrate($argf->toString(), $options['format']);
+        if (0) {
+            phpinfo();
         }
 
         return 0;
@@ -174,38 +164,42 @@ class phpbugs
         $argc =& $argf->argc();
         $argv =& $argf->argv();
 
-        $optparser = new Console_CommandLine(array(
-            'name'        => basename($argv[0]),
-            'description' =>
-                'A php migratory tool from 4 to 5 written in pure php',
-            'version'     => '0.0.1'));
+        $optparser =
+          new Console_CommandLine(array('name'        => basename($argv[0]),
+                                        'description' => 'Find bugs in PHP5 Programs',
+                                        'version'     => '0.0.1'));
+        $optparser->addOption('format',
+                              array(
+                                    'long_name'   => '--format',
+                                    'help_name'   => 'FORMAT',
+                                    'choices'     => array('nodes', 'string', 'terminals', 'tokens', 'tree'),
+                                    'default'     => 'string',
+                                    'description' => 'format of output (default: string)',
+                                    ));
+        $optparser->addOption('suffixes',
+                              array(
+                                    'long_name'   => '--suffixes',
+                                    'help_name'   => 'PATTERNS',
+                                    'default'     => 'php,yml',
+                                    'description' => 'suffixes of files to be checked (default: php,yml)',
+                                    ));
+        $optparser->addOption('priority',
+                              array('long_name'   => '--priority',
+                                    'help_name'   => 'LEVEL',
+                                    'choices'     => array('low', 'middle', 'high'),
+                                    'default'     => 'middle',
+                                    'description' => 'specify priority for bug reporting (default: middle)',
+                                    ));
+        $optparser->addOption('recursive',
+                              array('action'      => 'StoreTrue',
+                                    'description' => 'check recursively',
+                                    'long_name'   => '--recursive',
+                                    'short_name'  => '-r'));
+        $optparser->addOption('debug',
+                              array('action'      => 'StoreTrue',
+                                    'description' => 'turn on debug mode',
+                                    'long_name'   => '--debug'));
 
-        $optparser->addOption('format', array(
-            'choices'     => array(
-                'nodes', 'string', 'terminals', 'tokens', 'tree'),
-            'default'     => 'string',
-            'description' => 'format of output (default: string)',
-            'long_name'   => '--format',
-            'short_name'  => '-f'));
-
-        $optparser->addOption('in_place', array(
-            'action'      => 'StoreTrue',
-            'description' => 'edit files in place',
-            'long_name'   => '--in-place',
-            'short_name'  => '-i'));
-
-        $optparser->addOption('recursive', array(
-            'action'      => 'StoreTrue',
-            'description' => 'migrate recursively',
-            'long_name'   => '--recursive',
-            'short_name'  => '-r'));
-
-        $optparser->addOption('suffixes', array(
-            'default'     => 'php,php4,php5,inc',
-            'description' =>
-                'suffixes of files to be migrated (default: php,php4,php5,inc)',
-            'long_name'   => '--suffixes',
-            'short_name'  => '-s'));
 
         $optparser->addArgument('files', array('multiple' => true));
 

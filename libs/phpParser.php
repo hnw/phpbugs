@@ -1,4 +1,4 @@
-<?php
+<?php /*-*- mode:PHP;tab-width:4;c-basic-offset:4;indent-tabs-mode:nil; -*-*/
 /* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
 
 require_once('phpParserNonTerminal.php');
@@ -147,6 +147,10 @@ class phpParser
             self::createPath('%s', '*%s'), self::$plugins_dir, $suffix);
         foreach (glob($pattern) as $path) {
             require_once($path);
+            // TODO: get_declared_classあたりを使って何とかする
+            // TODO: phpParserPluginの子供かをチェック
+            // TODO: 各プラグインをnewしたい気もする。
+            // TODO: registerRuleメソッドを呼び出して、pluginに自分で登録させる
             $class = __CLASS__.'Plugin'.
                 substr(basename($path), 0, -strlen($suffix));
             $properties = get_class_vars($class);

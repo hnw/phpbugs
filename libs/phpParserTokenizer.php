@@ -1,4 +1,4 @@
-<?php
+<?php /*-*- mode:PHP;tab-width:4;c-basic-offset:4;indent-tabs-mode:nil; -*-*/
 /* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
 
 require_once('phpParserTerminal.php');
